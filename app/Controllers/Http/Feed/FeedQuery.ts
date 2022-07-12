@@ -268,6 +268,151 @@ export default class FeedQuery{
 
 
   }
+
+  async getAllFeed(uid, more){
+
+
+    let q = Feed.query()
+          .where('is_story', 0)
+           .preload('share', (sQuery) => {
+          //   sQuery.where('feed_privacy', '!=', 'ONLY ME')
+             sQuery.preload('user')
+             sQuery.preload('group',(a)=>{
+               a.select('id','group_name','slug','cover')
+             })
+             sQuery.preload('page',(a)=>{
+               a.select('id','page_name','slug','profile_pic')
+             })
+             sQuery.preload('event',(a)=>{
+               a.select('id','event_name','slug','user_id', 'cover')
+             })
+             sQuery.preload('poll', (q) =>{
+               q.preload('pollOptions', (r) =>{
+                 r.preload('voteOption', (s) =>{
+                   s.preload('user')
+                 })
+                 r.preload('isVoted', (t) =>{
+                   t.where('user_id',  uid)
+                 })
+                 r.preload('user')
+               })
+               q.preload('isVotedOne',  (u) =>{
+                 u.where('user_id' , uid)
+               })
+
+             })
+           })
+           // .preload('user',qq=>{
+           //     qq.select('id','first_name','last_name','username', 'profile_pic')
+           // })
+           .preload('user', (usersQuery) =>{
+             usersQuery.select('id','first_name','last_name','username', 'profile_pic')
+           })
+           .where((builder) => {
+             builder.where('is_story', 0)
+             builder.whereDoesntHave('blockedUser', (qq) => {
+               qq.where('user_id', uid)
+             })
+             builder.whereDoesntHave('userBlocked',(q)=>{
+               q.where('blocked_user_id', uid )
+              })
+           })
+           .whereDoesntHave('hiddenPost', (postQuery) =>{
+             postQuery.where('user_id', uid)
+           })
+           .preload('group')
+           .preload('poll', (q) =>{
+             q.preload('pollOptions', (r) =>{
+               r.preload('voteOption', (s) =>{
+                 s.preload('user')
+
+               })
+               r.preload('isVoted', (t) =>{
+                 t.where('user_id',  uid)
+               })
+               r.preload('user')
+             })
+             q.preload('isVotedOne',  (u) =>{
+               u.where('user_id' , uid)
+             })
+
+           })
+           .where((builder) => {
+             builder.where((query) => {
+               query
+                  .whereNull('group_id')
+              })
+             builder.orWhere((query) => {
+               query
+                 .whereNotNull('group_id')
+                 .whereHas('group', (groupQuery) => {
+                   groupQuery.where('group_privacy', 'PUBLIC')
+                   groupQuery.orWhere((memberQuery) => {
+                     memberQuery.whereHas('is_member', (memberQuery2) => {
+                       memberQuery2.where('user_id', uid)
+                     })
+                   })
+                 })
+             })
+           })
+           .preload('event')
+           .preload('page')
+           .preload('like', (b) => {
+               b.where('user_id', uid)
+           })
+           .preload('likeUser', (b) => {
+              b.preload('user')
+           })
+            .preload('savedPosts', (b) => {
+             b.where('user_id', uid)
+           })
+    //  if(feed_type == 'world'){
+    //    q.where('feed_privacy', 'PUBLIC')
+    //  }
+    //  else if(feed_type == 'savePost'){
+    //    q.whereHas('savedPosts', (b) => {
+    //      b.where('user_id', uid)
+    //    })
+    //  }
+    //  else{
+    //    q.where((r) =>{
+    //      r.where((builder) => {
+    //        builder.where('is_story', 0)
+    //        builder.whereHas('friend', (qq) => {
+    //          qq.where('friend_id', uid)
+    //          qq.where('status', 'accepted')
+    //        })
+    //        builder.whereIn('feed_privacy', ['PUBLIC', 'FRIENDS'])
+    //        builder.where('activity_type', 'feed')
+    //      })
+    //      r.orWhere((builder1) => {
+    //        builder1.where('is_story', 0)
+    //        builder1.where('activity_type', 'page')
+    //        builder1.whereHas('is_page_followed', (qq) => {
+    //         qq.where('user_id', uid)
+    //         })
+    //      })
+    //      r.orWhere((builder1) => {
+    //        builder1.where('is_story', 0)
+    //        builder1.where('activity_type', 'event')
+    //        builder1.whereHas('is_event_invited', (qq) => {
+    //         qq.where('user_id', uid)
+    //         })
+    //      })
+    //      r.orWhere((builder1) => {
+    //        builder1.where('is_story', 0)
+    //        builder1.where('user_id',  uid)
+    //      })
+    //    })
+
+
+    //  }
+
+     if(more > 0){
+         q.where('id', '<', more)
+       }
+    return q.orderBy('id', 'desc').limit(15)
+ }
   async getFeed(uid, more, feed_type){
 
 

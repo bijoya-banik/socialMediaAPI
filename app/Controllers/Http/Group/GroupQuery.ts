@@ -192,17 +192,17 @@ export default class GroupQuery{
         let searchTxt = `${str}*`
 
         return User.query()
-        .preload('friend', (b) => {
-            b.where('friend_id', user_id)
-        })
-        .where((builder) => {
-            builder.whereDoesntHave('blockedUser', (qq) => {
-              qq.where('user_id', user_id)
-            })
-            builder.whereDoesntHave('userBlocked',(q)=>{
-              q.where('blocked_user_id', user_id )
-             })
-        })
+        // .preload('friend', (b) => {
+        //     b.where('friend_id', user_id)
+        // })
+        // .where((builder) => {
+        //     builder.whereDoesntHave('blockedUser', (qq) => {
+        //       qq.where('user_id', user_id)
+        //     })
+        //     builder.whereDoesntHave('userBlocked',(q)=>{
+        //       q.where('blocked_user_id', user_id )
+        //      })
+        // })
         .whereRaw("MATCH (first_name, last_name) AGAINST (? IN BOOLEAN MODE)",[searchTxt])
         .orderBy('id', 'desc')
         .limit(15)

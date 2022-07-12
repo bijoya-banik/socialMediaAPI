@@ -38,6 +38,7 @@ Route.group(()=>{
   Route.post('createReport', 'Feed/FeedController.createReport')
   Route.post('createFeed', 'Feed/FeedController.createFeed')
   Route.get('getFeed', 'Feed/FeedController.getFeed')
+  Route.get('getAllFeed', 'Feed/FeedController.getAllFeed')
   Route.post('saveFeedforUser', 'Feed/FeedController.saveFeedforUser')
   Route.post('unsaveFeedforUser', 'Feed/FeedController.unsaveFeedforUser')
   Route.post('createLike', 'Feed/FeedController.createLike')

@@ -61,6 +61,9 @@ export default class FeedController {
   async getFeed(ctx : HttpContextContract){
       return this.feedService.getFeed(ctx)
   }
+  async getAllFeed(ctx : HttpContextContract){
+      return this.feedService.getAllFeed(ctx)
+  }
   async getFellings(ctx : HttpContextContract){
       return this.feedService.getFellings(ctx)
   }

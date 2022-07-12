@@ -233,6 +233,54 @@ export default class FeedService {
       }
       return allReaction
     }
+    async getAllFeed(ctx : HttpContextContract){
+      // console.log('hello time1')
+      let data = ctx.request.all()
+      let user:any = ctx.auth.user
+      // var start = new Date().getTime();
+      let obj = { status : 'Running' }
+      let current_date = this.customHelpers.getOnlyCurrentDate()
+      this.feedQuery.pendingAdsChecking(current_date, obj)
+      let pageAds:any = await Redis.get(`pageAds${user.id}`);
+      pageAds = data.feed_type == "savePost" ?  [] : JSON.parse(pageAds)
+      pageAds=[];
+       if ((!pageAds || pageAds.length == 0) && data.feed_type != "savePost"){
+        // console.log("Redis don't have pageAds ")
+        pageAds = [];
+        let ads = await this.feedQuery.getAdds(current_date,user,null)
+        pageAds = ads
+        await Redis.set(`pageAds${user.id}`, JSON.stringify(pageAds))
+        await Redis.expire(`pageAds${user.id}`, 86400)
+      }
+      // else console.log("Redis  have pageAds ",pageAds )
+      let newFeed:any=null;
+      let ob :any= {}
+      let  len:number = pageAds.length
+
+      // console.log("Ads",len)
+      if (len > 0) {
+        let firstRandomIndex = Math.floor(Math.random() * pageAds.length);
+        ob = pageAds[firstRandomIndex]
+        newFeed  = await this.feedQuery.getSingleAdds(ob.id)
+        await this.customHelpers.createAdActionEvent(ob.id, user.id, 'impression','page_ad')
+        pageAds.splice(firstRandomIndex,1)
+        if (len == 1) {
+          pageAds = [];
+          let ads = await this.feedQuery.getAdds(current_date,user, null)
+          pageAds = ads
+          await Redis.set(`pageAds${user.id}`, JSON.stringify(pageAds))
+          await Redis.expire(`pageAds${user.id}`, 86400)
+        }
+        else {
+          await Redis.set(`pageAds${user.id}`, JSON.stringify(pageAds))
+        }
+      }
+      // console.log("newFeed on ---------------------------------------------------------------------------- ",newFeed )
+      let feedData  = await this.feedQuery.getAllFeed(ctx.auth.user?.id, ctx.request.all().more)
+      // return feedData
+      return this.customHelpers.feedResponse(feedData,newFeed, ctx.auth.user?.id)
+
+    }
     async getFeed(ctx : HttpContextContract){
       // console.log('hello time1')
       let data = ctx.request.all()

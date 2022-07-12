@@ -238,6 +238,7 @@ export default class GroupService {
        }
        return {
           peopleData,
+        
        }
     }
     if(data.tab == 'event'){
