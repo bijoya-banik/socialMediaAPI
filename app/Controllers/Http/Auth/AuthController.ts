@@ -70,6 +70,16 @@ export default class AuthController {
         return ctx.response.status(422).send({msg:error.messages})
       }
    }
+  async adminLogin(ctx : HttpContextContract){
+      try {
+        let validatedData = await this.authValidator.validateLoginSchema(ctx)
+        return await this.authService.adminLogin(validatedData,ctx)
+        // if(!user) return ctx.response.status(401).send({ msg: 'Invalid credentials.' })
+        // return user
+      } catch (error) {
+        return ctx.response.status(422).send({msg:error.messages})
+      }
+   }
 
   async getUser({ auth }) {
     try {

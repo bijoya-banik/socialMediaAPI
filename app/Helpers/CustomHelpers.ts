@@ -15,9 +15,11 @@ import Drive from '@ioc:Adonis/Core/Drive'
 import sharp from 'sharp';
 // import Env from '@ioc:Adonis/Core/Env'
 
+
 const AWS = require('aws-sdk');
 const fs = require('fs');
 const spacesEndpoint = new AWS.Endpoint('ewr1.vultrobjects.com');
+// let ipLocalhost="http://192.168.108.224:3333";
 // const spacesEndpoint = new AWS.Endpoint('nyc3.digitaloceanspaces.com');
 // const s3 = new AWS.S3({
 //    endpoint: spacesEndpoint,
@@ -440,7 +442,8 @@ export default class CustomHelpers {
               name: fileName,
             })
             let upFile = `http://localhost:3333/uploads/${fileName}`
-
+         //  let ipLocalhost="http://192.168.108.224:3333";
+        
             return ctx.response.status(200).send({ response: upFile, type: type});
 
         }
@@ -490,6 +493,7 @@ export default class CustomHelpers {
               name: fileName,
             })
             let upFile = `http://localhost:3333/uploads/${fileName}`
+          
 
            return upFile
 

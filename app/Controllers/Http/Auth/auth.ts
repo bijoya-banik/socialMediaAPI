@@ -1,4 +1,7 @@
 import Route from '@ioc:Adonis/Core/Route'
+
+
+
 Route.group(()=>{
   Route.get('testAuth', 'Auth/AuthController.getAuthByLimit')
   Route.post('signup', 'Auth/AuthController.signup')
@@ -19,6 +22,7 @@ Route.group(()=>{
   Route.get('testAuth', 'Auth/AuthController.getAuthByLimit')
   Route.post('signup', 'Auth/AuthController.signup')
   Route.post('/login', 'Auth/AuthController.apiLogin')
+  Route.post('/adminLogin', 'Auth/AuthController.adminLogin')
   Route.get('/getUser', 'Auth/AuthController.getUserApp')
   Route.get('/csrfCookie', 'Auth/AuthController.csrfCookie')
   Route.get('/logout', 'Auth/AuthController.appLogout')

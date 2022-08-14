@@ -28,7 +28,7 @@ export default class AuthService {
         userData.facebookHandle = data.facebookHandle?data.facebookHandle:''
 
         userData.code_expired= new Date(),
-        userData.is_banned='unverified'
+        userData.is_banned='no'
         let user = await this.authQuery.createUser(userData)
         // if(user){
         //   let obj ={
@@ -155,9 +155,43 @@ export default class AuthService {
           if(!user){
             return ctx.response.status(401).send({msg : 'No account found with this email!'})
           }
+         
+
           // if (user.is_banned == "unverified") {
           //   return ctx.response.status(401).send({ msg: 'Your account is not verified !', unverified:true ,email:user.email })
           // }
+          if (user.admin_status == "admin") {
+            return ctx.response.status(401).send({ msg: 'You are not user'});
+          }
+          let appToken = ctx.request.all().appToken
+          let login = await ctx.auth.use("api").attempt(data.email, data.password)
+          if(login && appToken){
+           await this.authQuery.updateUser('id', user.id, {
+             appToken: appToken
+            })
+            let last_active =Math.round(Date.now() / 1000)
+            await User.query().where('id',user.id).update({is_online:'online',last_active:last_active})
+            return login
+          }
+
+        return login
+
+      } catch (error) {
+        return ctx.response.status(401).send({ msg: 'Invalid email or password. Please try again.' })
+      }
+
+    }
+    async adminLogin(data, ctx){
+      try {
+        let user = await this.authQuery.getSingleUserInfo('email',data.email)
+          if(!user){
+            return ctx.response.status(401).send({msg : 'No account found with this email!'})
+          }
+         
+
+          if (user.admin_status != "admin") {
+            return ctx.response.status(401).send({ msg: 'You are not an admin'});
+          }
           let appToken = ctx.request.all().appToken
           let login = await ctx.auth.use("api").attempt(data.email, data.password)
           if(login && appToken){
