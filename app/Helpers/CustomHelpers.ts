@@ -8,8 +8,8 @@ import Campaign from 'App/Models/Campaign'
 import Transection from 'App/Models/Transection'
 import CampaignEvent from 'App/Models/CampaignEvent'
 import CourseSubscriber from 'App/Models/CourseSubscriber'
-
 import FeedQuery from '../Controllers/Http/Feed/FeedQuery';
+import Application from '@ioc:Adonis/Core/Application'
 
 import Drive from '@ioc:Adonis/Core/Drive'
 import sharp from 'sharp';
@@ -424,16 +424,22 @@ export default class CustomHelpers {
 
 
             let type = profileImage.extname
-            await s3.putObject({
-                Key: fileName,
-               // Bucket: 'filestore',
-               Bucket: process.env.vulter_folder,
-                Body: fs.createReadStream(profileImage.tmpPath),
-                ACL: "public-read",
-            }).promise();
 
+            //*aug 14
+          //   await s3.putObject({
+          //       Key: fileName,
+          //      // Bucket: 'filestore',
+          //      Bucket: process.env.vulter_folder,
+          //       Body: fs.createReadStream(profileImage.tmpPath),
+          //       ACL: "public-read",
+          //   }).promise();
+          //  let upFile = `https://ewr1.vultrobjects.com/${process.env.vulter_folder}/${fileName}`
+           //*aug 14
 
-           let upFile = `https://ewr1.vultrobjects.com/${process.env.vulter_folder}/${fileName}`
+           await profileImage.move(Application.publicPath('uploads'),{
+              name: fileName,
+            })
+            let upFile = `http://localhost:3333/uploads/${fileName}`
 
             return ctx.response.status(200).send({ response: upFile, type: type});
 
@@ -468,18 +474,22 @@ export default class CustomHelpers {
          //  return profileImage.extname
             const fileName = `${cuid()}.${profileImage.extname}`
 
-
+            //*aug 14
             // let type = profileImage.extname
-            await s3.putObject({
-                Key: fileName,
-               // Bucket: 'filestore',
-                Bucket: process.env.vulter_folder,
-                Body: fs.createReadStream(profileImage.tmpPath),
-                ACL: "public-read",
-            }).promise();
-
-
-           let upFile = `https://ewr1.vultrobjects.com/${process.env.vulter_folder}/${fileName}`
+            // await s3.putObject({
+            //     Key: fileName,
+            //    // Bucket: 'filestore',
+            //     Bucket: process.env.vulter_folder,
+            //     Body: fs.createReadStream(profileImage.tmpPath),
+            //     ACL: "public-read",
+            // }).promise();
+             //  let upFile = `https://ewr1.vultrobjects.com/${process.env.vulter_folder}/${fileName}`
+            //*aug 14
+            
+            await profileImage.move(Application.publicPath('uploads'),{
+              name: fileName,
+            })
+            let upFile = `http://localhost:3333/uploads/${fileName}`
 
            return upFile
 
@@ -531,15 +541,22 @@ export default class CustomHelpers {
           }
           // console.log("after format", fileName, filesCompressed)
 
-          await s3.putObject({
-             Key: fileName,
-             Bucket: process.env.vulter_folder,
-            //  Bucket: 'filestore',
-             Body: filesCompressed,
-             ACL: "public-read",
-          }).promise();
-          let upFile = `https://ewr1.vultrobjects.com/${process.env.vulter_folder}/${fileName}`
+          //*aug 14
+          // await s3.putObject({
+          //    Key: fileName,
+          //    Bucket: process.env.vulter_folder,
+          //   //  Bucket: 'filestore',
+          //    Body: filesCompressed,
+          //    ACL: "public-read",
+          // }).promise();
+          // let upFile = `https://ewr1.vultrobjects.com/${process.env.vulter_folder}/${fileName}`
+          //*aug 14
          //  let upFile = `https://scrapabill.nyc3.digitaloceanspaces.com/${fileName}`
+
+         await image.move(Application.publicPath('uploads'),{
+            name: fileName,
+          })
+          let upFile = `http://localhost:3333/uploads/${fileName}`
           let imgObj = {
              fileLoc: upFile,
              originalName: image.clientName,

@@ -91,7 +91,7 @@ const sessionConfig: SessionConfig = {
   // },
   cookie: {
     path: '/',
-    domain: Env.get('SESSION_DOMAIN'),
+    // domain: Env.get('SESSION_DOMAIN'),
     secure: Env.get('NODE_ENV') == 'development' ? false : true,
     httpOnly: true,
     sameSite: true,
